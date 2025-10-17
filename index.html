@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timer treningowy</title>
   <style>
     body {
@@ -33,7 +33,21 @@
 
     label {
       font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+
+    .color-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .dot-red { background: red; }
+    .dot-yellow { background: gold; }
+    .dot-green { background: limegreen; }
 
     input {
       width: 70px;
@@ -91,6 +105,13 @@
       user-select: none;
     }
 
+    .repCounter {
+      margin-top: 15px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #ccc;
+    }
+
     @media (max-width: 600px) {
       .stage {
         width: 160px;
@@ -105,9 +126,10 @@
 <body>
   <h1>Treningowy Timer</h1>
   <div class="controls">
-    <label>🟥 Dół: <input type="number" id="downTime" value="5" min="1" /></label>
-    <label>🟨 Pauza: <input type="number" id="pauseTime" value="1" min="1" /></label>
-    <label>🟩 Góra: <input type="number" id="upTime" value="5" min="1" /></label>
+    <label><span class="color-dot dot-red"></span> Dół: <input type="number" id="downTime" value="5" min="1"></label>
+    <label><span class="color-dot dot-yellow"></span> Pauza: <input type="number" id="pauseTime" value="2" min="1"></label>
+    <label><span class="color-dot dot-green"></span> Góra: <input type="number" id="upTime" value="5" min="1"></label>
+    <label>🔁 Powtórzenia: <input type="number" id="reps" value="1" min="1"></label>
     <button id="startBtn">Start</button>
   </div>
 
@@ -116,26 +138,42 @@
     <div class="timerText" id="timerText">0</div>
   </div>
 
+  <div class="repCounter" id="repCounter">Powtórzenie: 0/0</div>
+
   <script>
     const box = document.getElementById("box");
     const startBtn = document.getElementById("startBtn");
     const timerText = document.getElementById("timerText");
+    const repCounter = document.getElementById("repCounter");
 
     startBtn.addEventListener("click", () => {
       const downTime = parseFloat(document.getElementById("downTime").value);
       const pauseTime = parseFloat(document.getElementById("pauseTime").value);
       const upTime = parseFloat(document.getElementById("upTime").value);
+      const reps = parseInt(document.getElementById("reps").value);
 
       startBtn.disabled = true;
-      runSequence(downTime, pauseTime, upTime);
+      runTraining(downTime, pauseTime, upTime, reps);
     });
+
+    async function runTraining(down, pause, up, reps) {
+      for (let i = 1; i <= reps; i++) {
+        repCounter.textContent = `Powtórzenie: ${i}/${reps}`;
+        await runSequence(down, pause, up);
+        if (i < reps) {
+          // Przerwa między powtórzeniami (1 sekunda)
+          await animateBox("gold", "pause", 1);
+        }
+      }
+      repCounter.textContent = "Trening zakończony ✅";
+      timerText.textContent = "0";
+      startBtn.disabled = false;
+    }
 
     async function runSequence(down, pause, up) {
       await animateBox("red", "down", down);
-      await animateBox("yellow", "pause", pause);
-      await animateBox("green", "up", up);
-      startBtn.disabled = false;
-      timerText.textContent = "0";
+      await animateBox("gold", "pause", pause);
+      await animateBox("limegreen", "up", up);
     }
 
     function animateBox(color, direction, duration) {
