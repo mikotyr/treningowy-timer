@@ -74,15 +74,15 @@
 
     .stage {
       position: relative;
-      width: 220px;
-      height: 480px;
+      width: 320px;
+      height: 520px;
       background: #333;
-      border-radius: 15px;
+      border-radius: 18px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
     }
 
     .box {
@@ -114,8 +114,8 @@
 
     @media (max-width: 600px) {
       .stage {
-        width: 160px;
-        height: 340px;
+        width: 240px;
+        height: 400px;
       }
       .timerText {
         font-size: 48px;
@@ -161,8 +161,7 @@
         repCounter.textContent = `Powtórzenie: ${i}/${reps}`;
         await runSequence(down, pause, up);
         if (i < reps) {
-          // Przerwa między powtórzeniami (1 sekunda)
-          await animateBox("gold", "pause", 1);
+          await animateBox("gold", "pause", 1); // 1s przerwy między powtórzeniami
         }
       }
       repCounter.textContent = "Trening zakończony ✅";
@@ -190,11 +189,14 @@
           timerText.textContent = remaining > 0 ? remaining : "0";
 
           if (direction === "down") {
+            box.style.transformOrigin = "bottom";
             box.style.transform = `scaleY(${1 - progress})`;
           } else if (direction === "up") {
+            box.style.transformOrigin = "bottom";
             box.style.transform = `scaleY(${progress})`;
           } else if (direction === "pause") {
-            box.style.transform = `scaleY(1)`;
+            box.style.transformOrigin = "center";
+            box.style.transform = `scaleX(${0.5 + progress / 2}) scaleY(1)`;
           }
 
           if (progress < 1) {
